@@ -21,7 +21,7 @@
                 } else {
                     alert("Error generating report: " + response.message);
                 }
-            }).importDefectDojoReport(appName);
+            }).importDefectDojoReport(appName); // Pass the appName to the function
         }
 
         // Function to populate the dropdown with application names
@@ -53,3 +53,4 @@
     <button onclick="generateReport()">Generate Report</button>
 </body>
 </html>
+
