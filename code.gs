@@ -53,7 +53,7 @@ function importDefectDojoReport(appName) {
   // Define the payload for the POST request
   const payload = {
     "report_type": "JSON",        // You want the report in JSON format
-    "title": `Macroscope-Report-LZ-${appName}-${Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'dd-MM-yyyy')}`, // Dynamic report title based on appName with formatted date
+    "title": `Macroscope-Report-LZ-${appName}`, // JSON report title (unchanged)
     "include_finding_notes": true, // Customize based on your needs
     "include_finding_images": false,
     "include_finding_request_response": false
@@ -78,11 +78,13 @@ function importDefectDojoReport(appName) {
     Logger.log(jsonData);
 
     // Create a new Google Sheet with a dynamic name
-    const sheetName = appName; // Sheet name based on the application name
+    const dateFormatted = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'dd-MM-yyyy');
+    const sheetName = `Macroscope-Report-LZ-${appName}-${dateFormatted}`; // New Google Sheet name
     const sheet = SpreadsheetApp.create(sheetName);  // Create a new spreadsheet
 
-    // Get the active sheet in the newly created spreadsheet
-    const sheetData = sheet.getActiveSheet(); 
+    // Create a sheet with the name of the application
+    const applicationSheet = sheet.getActiveSheet();
+    applicationSheet.setName(appName); // Set internal sheet name
 
     // Parse JSON data and insert it into the Google Sheet
     const headers = [
@@ -99,10 +101,10 @@ function importDefectDojoReport(appName) {
       "Mitigations",          // New blank column
       "Security Team comments" // New blank column
     ];  
-    sheetData.appendRow(headers);  // Adding headers to the sheet
+    applicationSheet.appendRow(headers);  // Adding headers to the sheet
 
     // Set the first row to bold
-    const headerRange = sheetData.getRange(1, 1, 1, headers.length);
+    const headerRange = applicationSheet.getRange(1, 1, 1, headers.length);
     headerRange.setFontWeight("bold");
 
     // Prepare to apply borders to all cells after data has been added
@@ -127,7 +129,7 @@ function importDefectDojoReport(appName) {
             "", // Blank for "Mitigations"
             ""  // Blank for "Security Team comments"
           ];
-          sheetData.appendRow(row);
+          applicationSheet.appendRow(row);
           lastRow++; // Increment lastRow for each new row added
         }
       });
@@ -137,12 +139,12 @@ function importDefectDojoReport(appName) {
     }
 
     // Apply borders to the entire data range, including headers
-    const range = sheetData.getRange(1, 1, lastRow, headers.length);
+    const range = applicationSheet.getRange(1, 1, lastRow, headers.length);
     range.setBorder(true, true, true, true, true, true);  // Set all borders
 
     // Enable text wrapping for the "Title" and "Security Team comments" columns
-    const titleColumnRange = sheetData.getRange(2, 7, lastRow - 1); // "Title" is the 7th column
-    const commentsColumnRange = sheetData.getRange(2, 12, lastRow - 1); // "Security Team comments" is the 12th column
+    const titleColumnRange = applicationSheet.getRange(2, 7, lastRow - 1); // "Title" is the 7th column
+    const commentsColumnRange = applicationSheet.getRange(2, 12, lastRow - 1); // "Security Team comments" is the 12th column
     titleColumnRange.setWrap(true);
     commentsColumnRange.setWrap(true);
 
@@ -170,3 +172,4 @@ function getApplications() {
   const applications = idDataValues.map(row => row[0]); // Assuming the application name is in the first column
   return applications;
 }
+
