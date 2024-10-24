@@ -1,32 +1,60 @@
 function doGet() {
-  return HtmlService.createHtmlOutputFromFile('index');
+  return HtmlService.createHtmlOutputFromFile('index'); // Serves the HTML file
 }
 
 function getApplications() {
   const idDataSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("IDdata");
-  const data = idDataSheet.getDataRange().getValues();
+  if (!idDataSheet) {
+    Logger.log("IDdata sheet not found.");
+    return [];
+  }
 
-  Logger.log(data); // Log the retrieved data
+  const idDataRange = idDataSheet.getDataRange();
+  const idDataValues = idDataRange.getValues();
   
-  return data.map(row => row[0]); // Assuming application names are in the first column
+  // Log the retrieved data
+  Logger.log(idDataValues);
+
+  return idDataValues.map(row => row[0]); // Return application names assuming they're in the first column
 }
 
-function importDefectDojoReport(selectedApp) {
-  // API details for POST request
-  const apiUrl = "https://<your_defect_dojo_url>/api/v2/reports/";  // Replace with your API URL for report generation
-  const apiToken = "Token <your_api_token>";  // Replace with your DefectDojo API token
+function importDefectDojoReport(appName) {
+  // Get the active spreadsheet
+  const spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
 
-  // Fetch the engagement ID based on the selected application
-  const idDataSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("IDdata");
-  const data = idDataSheet.getDataRange().getValues();
-  const engagementId = data.find(row => row[0] === selectedApp)[1]; // Get engagement ID for the selected app
+  // Get the "IDdata" sheet
+  const idDataSheet = spreadsheet.getSheetByName("IDdata");
+  if (!idDataSheet) {
+    Logger.log("IDdata sheet not found.");
+    return { success: false, message: "IDdata sheet not found." };
+  }
+
+  // Get the data from the "IDdata" sheet
+  const idDataRange = idDataSheet.getDataRange();
+  const idDataValues = idDataRange.getValues();
+  let engagementId;
+
+  // Find the engagement ID corresponding to the selected application name
+  idDataValues.forEach(row => {
+    if (row[0] === appName) {
+      engagementId = row[1]; // Assuming the engagement ID is in the second column
+    }
+  });
+
+  if (!engagementId) {
+    Logger.log("Invalid application name selected.");
+    return { success: false, message: "Invalid application name selected." };
+  }
+
+  // API details for POST request
+  const apiUrl = `https://<your_defect_dojo_url>/api/v2/reports/${engagementId}/`;  // Replace with your API URL for report generation
+  const apiToken = "Token <your_api_token>";  // Replace with your DefectDojo API token
 
   // Define the payload for the POST request
   const payload = {
-    "engagement": engagementId,  // Use the retrieved engagement ID
-    "report_type": "JSON",          // You want the report in JSON format
+    "report_type": "JSON",        // You want the report in JSON format
     "title": "Engagement Report",
-    "include_finding_notes": true,  // Customize based on your needs
+    "include_finding_notes": true, // Customize based on your needs
     "include_finding_images": false,
     "include_finding_request_response": false
   };
@@ -118,14 +146,10 @@ function importDefectDojoReport(selectedApp) {
     titleColumnRange.setWrap(true);
     commentsColumnRange.setWrap(true);
 
-    // Return the URL of the new sheet
-    return { success: true, sheetUrl: sheet.getUrl() };
+    return { success: true, message: "Report generated successfully.", sheetUrl: sheet.getUrl() };
 
   } catch (error) {
     Logger.log("Error fetching or processing data: " + error.message);
     return { success: false, message: error.message };
   }
 }
-
-
-
