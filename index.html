@@ -69,6 +69,27 @@
     .toast a:hover {
       text-decoration: underline; /* Add underline on hover */
     }
+
+    /* Spinner style */
+    .spinner {
+      display: none; /* Initially hidden */
+      border: 8px solid #f3f3f3; /* Light grey */
+      border-top: 8px solid #4CAF50; /* Green */
+      border-radius: 50%;
+      width: 60px;
+      height: 60px;
+      animation: spin 1s linear infinite; /* Spinner animation */
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 999; /* Above other content */
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
   </style>
   <script>
     function fetchReport() {
@@ -79,7 +100,13 @@
         return;
       }
 
+      // Show spinner
+      document.getElementById("spinner").style.display = "block";
+
       google.script.run.withSuccessHandler(function(response) {
+        // Hide spinner
+        document.getElementById("spinner").style.display = "none";
+
         if (response.success) {
           showToast("Report Created: <a href='" + response.sheetUrl + "' target='_blank'>Link</a><br>Refresh the page for a new report.");
         } else {
@@ -116,7 +143,12 @@
     <option value="">--Select Application--</option>
   </select>
   <button onclick="fetchReport()">Generate Report</button>
+
+  <!-- Spinner for loading animation -->
+  <div id="spinner" class="spinner"></div>
+
 </body>
 </html>
+
 
 
