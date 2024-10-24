@@ -1,37 +1,3 @@
-function onOpen() {
-  // Create a custom menu in the Google Sheets UI
-  const ui = SpreadsheetApp.getUi();
-  ui.createMenu('DefectDojo Report')
-    .addItem('Open Report Generator', 'showReportGenerator')
-    .addToUi();
-}
-
-function showReportGenerator() {
-  const html = HtmlService.createHtmlOutputFromFile('index')
-      .setWidth(400)
-      .setHeight(300);
-  SpreadsheetApp.getUi().showModalDialog(html, 'DefectDojo Report Generator');
-}
-
-function getApplicationNames() {
-  // Get the active spreadsheet
-  const spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
-
-  // Get the "IDdata" sheet
-  const idDataSheet = spreadsheet.getSheetByName("IDdata");
-  if (!idDataSheet) {
-    Logger.log("IDdata sheet not found.");
-    return [];
-  }
-
-  // Get application names from the "IDdata" sheet
-  const idDataRange = idDataSheet.getDataRange();
-  const idDataValues = idDataRange.getValues();
-
-  // Extract application names (assuming they are in the first column)
-  return idDataValues.map(row => row[0]);
-}
-
 function importDefectDojoReport(appName) {
   // Get the active spreadsheet
   const spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
@@ -43,15 +9,15 @@ function importDefectDojoReport(appName) {
     return { success: false, message: "IDdata sheet not found." };
   }
 
-  // Get the engagement ID based on the selected application name
+  // Get the data from the "IDdata" sheet
   const idDataRange = idDataSheet.getDataRange();
   const idDataValues = idDataRange.getValues();
   let engagementId;
 
-  // Find the ID corresponding to the selected application name
+  // Find the engagement ID corresponding to the selected application name
   idDataValues.forEach(row => {
     if (row[0] === appName) {
-      engagementId = row[1]; // Assuming the ID is in the second column
+      engagementId = row[1]; // Assuming the engagement ID is in the second column
     }
   });
 
@@ -97,23 +63,23 @@ function importDefectDojoReport(appName) {
     const sheet = SpreadsheetApp.create(sheetName);  // Create a new spreadsheet
 
     // Get the active sheet in the newly created spreadsheet
-    const sheetData = sheet.getActiveSheet();
+    const sheetData = sheet.getActiveSheet(); 
 
     // Parse JSON data and insert it into the Google Sheet
     const headers = [
-      "Description",
-      "File Path",
-      "ID",
-      "Mitigation",
-      "References",
-      "Severity",
-      "Title",
+      "Description", 
+      "File Path", 
+      "ID", 
+      "Mitigation", 
+      "References", 
+      "Severity", 
+      "Title", 
       "False Positive",       // New blank column
       "Vuln_Patch_Status",    // New blank column
       "Latest Version",       // New blank column
       "Mitigations",          // New blank column
       "Security Team comments" // New blank column
-    ];
+    ];  
     sheetData.appendRow(headers);  // Adding headers to the sheet
 
     // Set the first row to bold
@@ -168,3 +134,16 @@ function importDefectDojoReport(appName) {
     return { success: false, message: error.message }; // Return error message
   }
 }
+
+// Function to retrieve application names from the "IDdata" sheet
+function getApplicationNames() {
+  const spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
+  const idDataSheet = spreadsheet.getSheetByName("IDdata");
+  const idDataRange = idDataSheet.getDataRange();
+  const idDataValues = idDataRange.getValues();
+
+  // Collect application names in an array
+  const appNames = idDataValues.map(row => row[0]); // Assuming application names are in the first column
+  return appNames;
+}
+
