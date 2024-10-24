@@ -53,7 +53,7 @@ function importDefectDojoReport(appName) {
   // Define the payload for the POST request
   const payload = {
     "report_type": "JSON",        // You want the report in JSON format
-    "title": "Engagement Report",
+    "title": appName + " Engagement Report", // Dynamic report title based on appName
     "include_finding_notes": true, // Customize based on your needs
     "include_finding_images": false,
     "include_finding_request_response": false
@@ -77,8 +77,8 @@ function importDefectDojoReport(appName) {
     // Check the structure of the response to ensure it's correct
     Logger.log(jsonData);
 
-    // Create a new Google Sheet
-    const sheetName = "EngagementReport_" + new Date().toISOString().slice(0, 10); // Creates a unique sheet name with date
+    // Create a new Google Sheet with a dynamic name
+    const sheetName = appName + " Engagement Report_" + new Date().toISOString().slice(0, 10); // Creates a unique sheet name with date
     const sheet = SpreadsheetApp.create(sheetName);  // Create a new spreadsheet
 
     // Get the active sheet in the newly created spreadsheet
@@ -170,4 +170,5 @@ function getApplications() {
   const applications = idDataValues.map(row => row[0]); // Assuming the application name is in the first column
   return applications;
 }
+
 
