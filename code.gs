@@ -53,7 +53,7 @@ function importDefectDojoReport(appName) {
   // Define the payload for the POST request
   const payload = {
     "report_type": "JSON",        // You want the report in JSON format
-    "title": `Macroscope-Report-LZ-${appName}`, // Dynamic report title based on appName
+    "title": `Macroscope-Report-LZ-${appName}-${Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'dd-MM-yyyy')}`, // Dynamic report title based on appName with formatted date
     "include_finding_notes": true, // Customize based on your needs
     "include_finding_images": false,
     "include_finding_request_response": false
@@ -170,6 +170,7 @@ function getApplications() {
   const applications = idDataValues.map(row => row[0]); // Assuming the application name is in the first column
   return applications;
 }
+
 
 
 
