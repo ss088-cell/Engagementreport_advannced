@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DefectDojo Report Generator</title>
+    <script>
+        // Function to call the Google Apps Script function
+        function generateReport() {
+            const appName = document.getElementById('app-dropdown').value;
+
+            if (!appName) {
+                alert("Please select an application name.");
+                return;
+            }
+
+            // Call the Google Apps Script function to generate the report
+            google.script.run.withSuccessHandler(function(response) {
+                if (response.success) {
+                    alert("Report generated successfully: " + response.sheetUrl);
+                } else {
+                    alert("Error generating report: " + response.message);
+                }
+            }).importDefectDojoReport(appName);
+        }
+
+        // Function to populate the dropdown with application names
+        function populateDropdown() {
+            const appDropdown = document.getElementById('app-dropdown');
+
+            // Call a function in your Apps Script to get application names
+            google.script.run.withSuccessHandler(function(appNames) {
+                appNames.forEach(function(name) {
+                    const option = document.createElement('option');
+                    option.value = name;
+                    option.textContent = name;
+                    appDropdown.appendChild(option);
+                });
+            }).getApplicationNames(); // Calls the function to get application names
+        }
+
+        // Call populateDropdown when the page loads
+        window.onload = populateDropdown;
+    </script>
+</head>
+<body>
+    <h1>DefectDojo Report Generator</h1>
+    <label for="app-dropdown">Select Application:</label>
+    <select id="app-dropdown">
+        <option value="">-- Select an application --</option>
+    </select>
+    <br><br>
+    <button onclick="generateReport()">Generate Report</button>
+</body>
+</html>
