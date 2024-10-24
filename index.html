@@ -79,16 +79,21 @@
       width: 60px;
       height: 60px;
       animation: spin 1s linear infinite; /* Spinner animation */
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      z-index: 999; /* Above other content */
+      margin-top: 20px; /* Space between button and spinner */
     }
 
     @keyframes spin {
       0% { transform: rotate(0deg); }
       100% { transform: rotate(360deg); }
+    }
+
+    /* Text for generating report */
+    .generating-text {
+      display: none; /* Initially hidden */
+      margin-top: 10px;
+      font-size: 16px;
+      font-weight: bold;
+      color: #333;
     }
   </style>
   <script>
@@ -100,12 +105,14 @@
         return;
       }
 
-      // Show spinner
+      // Show spinner and text
       document.getElementById("spinner").style.display = "block";
+      document.getElementById("generating-text").style.display = "block";
 
       google.script.run.withSuccessHandler(function(response) {
-        // Hide spinner
+        // Hide spinner and text once report is created
         document.getElementById("spinner").style.display = "none";
+        document.getElementById("generating-text").style.display = "none";
 
         if (response.success) {
           showToast("Report Created: <a href='" + response.sheetUrl + "' target='_blank'>Link</a><br>Refresh the page for a new report.");
@@ -147,8 +154,7 @@
   <!-- Spinner for loading animation -->
   <div id="spinner" class="spinner"></div>
 
+  <!-- Text for "Generating Report" -->
+  <div id="generating-text" class="generating-text">Generating Report...</div>
 </body>
 </html>
-
-
-
