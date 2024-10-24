@@ -47,6 +47,9 @@ function importDefectDojoReport(appName) {
   const apiUrl = `https://<your_defect_dojo_url>/api/v2/reports/${engagementId}/`; // Replace with your API URL for report generation
   const apiToken = "Token <your_api_token>"; // Replace with your DefectDojo API token
 
+  // Log the API URL for debugging
+  Logger.log("API URL: " + apiUrl);
+
   // Define the payload for the POST request
   const payload = {
     "report_type": "JSON",        // You want the report in JSON format
@@ -167,4 +170,5 @@ function getApplications() {
   const applications = idDataValues.map(row => row[0]); // Assuming the application name is in the first column
   return applications;
 }
+
 
