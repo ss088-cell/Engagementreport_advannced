@@ -1,44 +1,57 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <base target="_top">
-  <script>
-    function fetchReport() {
-      const appSelect = document.getElementById("appSelect");
-      const appName = appSelect.value;
-      if (!appName) {
-        alert("Please select an application.");
-        return;
+  <head>
+    <base target="_top">
+  </head>
+  <body>
+    <h1>DefectDojo Report Generator</h1>
+    <label for="appSelect">Select Application:</label>
+    <select id="appSelect">
+      <option value="">Loading applications...</option>
+    </select>
+    <br><br>
+    <button onclick="fetchReport()">Generate Report</button>
+
+    <script>
+      function fetchReport() {
+        const appSelect = document.getElementById("appSelect");
+        const appName = appSelect.value;
+        if (!appName) {
+          alert("Please select an application.");
+          return;
+        }
+
+        google.script.run.withSuccessHandler(function(response) {
+          if (response.success) {
+            alert("Report generated successfully! View it here: " + response.sheetUrl);
+          } else {
+            alert("Error: " + response.message);
+          }
+        }).importDefectDojoReport(appName);
       }
 
-      google.script.run.withSuccessHandler(function(response) {
-        if (response.success) {
-          alert("Report generated successfully! View it here: " + response.sheetUrl);
-        } else {
-          alert("Error: " + response.message);
-        }
-      }).importDefectDojoReport(appName);
-    }
+      function loadApplications() {
+        google.script.run.withSuccessHandler(function(apps) {
+          const appSelect = document.getElementById("appSelect");
+          appSelect.innerHTML = ''; // Clear existing options
+          apps.forEach(function(app) {
+            const option = document.createElement("option");
+            option.value = app;
+            option.text = app;
+            appSelect.appendChild(option);
+          });
+          if (apps.length === 0) {
+            const option = document.createElement("option");
+            option.value = "";
+            option.text = "No applications found";
+            appSelect.appendChild(option);
+          }
+        }).getApplications();
+      }
 
-    function loadApplications() {
-      google.script.run.withSuccessHandler(function(apps) {
-        const appSelect = document.getElementById("appSelect");
-        apps.forEach(function(app) {
-          const option = document.createElement("option");
-          option.value = app;
-          option.text = app;
-          appSelect.appendChild(option);
-        });
-      }).getApplications();
-    }
-  </script>
-</head>
-<body onload="loadApplications()">
-  <h1>Defect Dojo Report Generator</h1>
-  <label for="appSelect">Select Application:</label>
-  <select id="appSelect">
-    <option value="">--Select Application--</option>
-  </select>
-  <button onclick="fetchReport()">Generate Report</button>
-</body>
+      // Load applications on page load
+      window.onload = loadApplications;
+    </script>
+  </body>
 </html>
+
