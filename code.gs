@@ -1,3 +1,7 @@
+function doGet() {
+  return HtmlService.createHtmlOutputFromFile('index'); // Serves the HTML file
+}
+
 function importDefectDojoReport(appName) {
   // Get the active spreadsheet
   const spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
@@ -27,12 +31,11 @@ function importDefectDojoReport(appName) {
   }
 
   // API details for POST request
-  const apiUrl = "https://<your_defect_dojo_url>/api/v2/reports/";  // Replace with your API URL for report generation
+  const apiUrl = `https://<your_defect_dojo_url>/api/v2/reports/${engagementId}/`;  // Replace with your API URL for report generation
   const apiToken = "Token <your_api_token>";  // Replace with your DefectDojo API token
 
   // Define the payload for the POST request
   const payload = {
-    "engagement": engagementId,  // Use the actual engagement ID
     "report_type": "JSON",        // You want the report in JSON format
     "title": "Engagement Report",
     "include_finding_notes": true, // Customize based on your needs
@@ -127,23 +130,12 @@ function importDefectDojoReport(appName) {
     titleColumnRange.setWrap(true);
     commentsColumnRange.setWrap(true);
 
-    return { success: true, sheetUrl: sheet.getUrl() }; // Return success and sheet URL
+    return { success: true, message: "Report generated successfully.", sheetUrl: sheet.getUrl() };
 
   } catch (error) {
     Logger.log("Error fetching or processing data: " + error.message);
-    return { success: false, message: error.message }; // Return error message
+    return { success: false, message: error.message };
   }
 }
 
-// Function to retrieve application names from the "IDdata" sheet
-function getApplicationNames() {
-  const spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
-  const idDataSheet = spreadsheet.getSheetByName("IDdata");
-  const idDataRange = idDataSheet.getDataRange();
-  const idDataValues = idDataRange.getValues();
-
-  // Collect application names in an array
-  const appNames = idDataValues.map(row => row[0]); // Assuming application names are in the first column
-  return appNames;
-}
 
