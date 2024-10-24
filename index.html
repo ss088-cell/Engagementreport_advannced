@@ -2,6 +2,50 @@
 <html>
 <head>
   <base target="_top">
+  <style>
+    body {
+      background-color: skyblue; /* Set background color to sky blue */
+      display: flex;
+      flex-direction: column;
+      align-items: center; /* Center the content horizontally */
+      justify-content: center; /* Center the content vertically */
+      height: 100vh; /* Full viewport height */
+      margin: 0; /* Remove default margin */
+      font-family: Arial, sans-serif; /* Set a clean font */
+    }
+
+    h1 {
+      margin-bottom: 20px; /* Space between title and dropdown */
+    }
+
+    select, button {
+      padding: 10px 20px; /* Add padding for dropdown and button */
+      font-size: 16px; /* Increase font size */
+      margin: 10px; /* Space between elements */
+      border: none; /* Remove border */
+      border-radius: 5px; /* Rounded corners */
+      transition: all 0.3s ease; /* Animation for hover effect */
+    }
+
+    select {
+      animation: fadeIn 0.5s; /* Fade in effect for dropdown */
+    }
+
+    button {
+      background-color: #4CAF50; /* Green background */
+      color: white; /* White text */
+    }
+
+    button:hover {
+      background-color: #45a049; /* Darker green on hover */
+      transform: scale(1.05); /* Slight zoom on hover */
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+  </style>
   <script>
     function fetchReport() {
       const appSelect = document.getElementById("appSelect");
@@ -13,7 +57,7 @@
 
       google.script.run.withSuccessHandler(function(response) {
         if (response.success) {
-          alert("Report created: " + response.sheetUrl);
+          showToast("Report created: " + response.sheetUrl);
         } else {
           alert("Error: " + response.message);
         }
@@ -31,6 +75,29 @@
         });
       }).getApplications();
     }
+
+    function showToast(message) {
+      const toast = document.createElement("div");
+      toast.textContent = message;
+      toast.style.position = "fixed";
+      toast.style.bottom = "20px";
+      toast.style.right = "20px";
+      toast.style.backgroundColor = "rgba(0, 0, 0, 0.7)";
+      toast.style.color = "white";
+      toast.style.padding = "10px 15px";
+      toast.style.borderRadius = "5px";
+      toast.style.zIndex = "1000";
+      toast.style.opacity = "1";
+      toast.style.transition = "opacity 0.5s ease";
+      document.body.appendChild(toast);
+
+      setTimeout(function() {
+        toast.style.opacity = "0";
+        setTimeout(function() {
+          document.body.removeChild(toast);
+        }, 500); // Remove the toast after fade out
+      }, 3000); // Show toast for 3 seconds
+    }
   </script>
 </head>
 <body onload="loadApplications()">
@@ -42,5 +109,6 @@
   <button onclick="fetchReport()">Generate Report</button>
 </body>
 </html>
+
 
 
