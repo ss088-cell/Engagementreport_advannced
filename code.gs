@@ -44,7 +44,7 @@ function importDefectDojoReport(appName) {
   }
 
   // API details for POST request
-  const apiUrl = `https://<your_defect_dojo_url>/api/v2/reports/${engagementId}/`; // Replace with your API URL for report generation
+  const apiUrl = `https://<your_defect_dojo_url>/api/v2/${engagementId}/reports/`; // Corrected API URL
   const apiToken = "Token <your_api_token>"; // Replace with your DefectDojo API token
 
   // Log the API URL for debugging
@@ -170,5 +170,3 @@ function getApplications() {
   const applications = idDataValues.map(row => row[0]); // Assuming the application name is in the first column
   return applications;
 }
-
-
