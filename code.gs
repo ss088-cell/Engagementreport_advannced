@@ -170,3 +170,4 @@ function getApplications() {
   const applications = idDataValues.map(row => row[0]); // Assuming the application name is in the first column
   return applications;
 }
+
