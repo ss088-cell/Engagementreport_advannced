@@ -59,6 +59,16 @@
       text-align: center; /* Center text in the toast */
       display: none; /* Initially hidden */
     }
+
+    .toast a {
+      color: #4CAF50; /* Set link text color to green */
+      text-decoration: none; /* Remove underline from the link */
+      font-weight: bold;
+    }
+
+    .toast a:hover {
+      text-decoration: underline; /* Add underline on hover */
+    }
   </style>
   <script>
     function fetchReport() {
@@ -71,7 +81,7 @@
 
       google.script.run.withSuccessHandler(function(response) {
         if (response.success) {
-          showToast("Report created: <a href='" + response.sheetUrl + "' target='_blank'>" + response.sheetUrl + "</a><br>Refresh the page for a new report.");
+          showToast("Report Created: <a href='" + response.sheetUrl + "' target='_blank'>Link</a><br>Refresh the page for a new report.");
         } else {
           alert("Error: " + response.message);
         }
@@ -108,3 +118,4 @@
   <button onclick="fetchReport()">Generate Report</button>
 </body>
 </html>
+
