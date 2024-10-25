@@ -107,14 +107,47 @@ function importDefectDojoReport(appName) {
     const headerRange = applicationSheet.getRange(1, 1, 1, headers.length);
     headerRange.setFontWeight("bold");
 
-    // Prepare to apply borders to all cells after data has been added
     let lastRow = 1; // Initialize lastRow to 1 for headers
     const reportData = jsonData.findings;  // Adjust based on actual JSON structure
+    
+    // Fetch the TitleData sheet to get the data for each title
+    const titleDataSheet = spreadsheet.getSheetByName("TitleData"); // New sheet with title mappings
+    if (!titleDataSheet) {
+      Logger.log("TitleData sheet not found.");
+      return { success: false, message: "TitleData sheet not found." };
+    }
+
+    const titleDataRange = titleDataSheet.getDataRange();
+    const titleDataValues = titleDataRange.getValues();
+
+    // Create a map of title to column values from TitleData sheet
+    const titleMap = {};
+    titleDataValues.forEach(row => {
+      const title = row[0]; // Assuming the first column is the title
+      titleMap[title] = {
+        falsePositive: row[1] || "", 
+        vulnPatchStatus: row[2] || "",
+        latestVersion: row[3] || "",
+        mitigations: row[4] || "",
+        securityComments: row[5] || ""
+      };
+    });
+
     if (reportData) {
       reportData.forEach(function(finding) {
         // Check if the display_status is "Active"
         if (finding.display_status === "Active") {
-          // Extract relevant data from each finding (adjust fields to match actual structure)
+          const title = finding.title;
+
+          // Fetch corresponding data from the titleMap
+          const titleDetails = titleMap[title] || {
+            falsePositive: "",
+            vulnPatchStatus: "",
+            latestVersion: "",
+            mitigations: "",
+            securityComments: ""
+          };
+
           const row = [
             finding.description,
             finding.file_path,
@@ -122,12 +155,12 @@ function importDefectDojoReport(appName) {
             finding.mitigation,
             finding.references,
             finding.severity,
-            finding.title,
-            "", // Blank for "False Positive"
-            "", // Blank for "Vuln_Patch_Status"
-            "", // Blank for "Latest Version"
-            "", // Blank for "Mitigations"
-            ""  // Blank for "Security Team comments"
+            title,
+            titleDetails.falsePositive,
+            titleDetails.vulnPatchStatus,
+            titleDetails.latestVersion,
+            titleDetails.mitigations,
+            titleDetails.securityComments
           ];
           applicationSheet.appendRow(row);
           lastRow++; // Increment lastRow for each new row added
@@ -172,4 +205,5 @@ function getApplications() {
   const applications = idDataValues.map(row => row[0]); // Assuming the application name is in the first column
   return applications;
 }
+
 
